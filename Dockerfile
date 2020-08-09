@@ -6,6 +6,7 @@ RUN apk --no-cache add \
     libc6-compat \
     openssh-client \
     python \
+    bash \
     py-crcmod \
     py-pip && \
     pip install --upgrade pip==18.1

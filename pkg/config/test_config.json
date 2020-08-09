@@ -26,6 +26,7 @@
     ],
     "helm-extra-args": "--timeout 300",
     "upgrade": true,
+    "setup-script": "/path/to/script.sh",
     "skip-missing-values": true,
     "namespace": "default",
     "release-label": "release"

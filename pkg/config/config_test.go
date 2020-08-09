@@ -50,6 +50,7 @@ func loadAndAssertConfigFromFile(t *testing.T, configFile string) {
 	require.Equal(t, []string{"common"}, cfg.ExcludedCharts)
 	require.Equal(t, "--timeout 300", cfg.HelmExtraArgs)
 	require.Equal(t, true, cfg.Upgrade)
+	require.Equal(t, "/path/to/script.sh", cfg.SetupScript)
 	require.Equal(t, true, cfg.SkipMissingValues)
 	require.Equal(t, "default", cfg.Namespace)
 	require.Equal(t, "release", cfg.ReleaseLabel)

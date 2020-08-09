@@ -20,9 +20,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/mitchellh/go-homedir"
-
 	"github.com/helm/chart-testing/v3/pkg/util"
+	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
@@ -59,9 +58,11 @@ type Configuration struct {
 	HelmRepoExtraArgs     []string `mapstructure:"helm-repo-extra-args"`
 	Debug                 bool     `mapstructure:"debug"`
 	Upgrade               bool     `mapstructure:"upgrade"`
+	SetupScript           string   `mapstructure:"setup-script"`
 	SkipMissingValues     bool     `mapstructure:"skip-missing-values"`
 	Namespace             string   `mapstructure:"namespace"`
 	ReleaseLabel          string   `mapstructure:"release-label"`
+	PostRenderer          string   `mapstructure:"post-renderer"`
 }
 
 func LoadConfiguration(cfgFile string, cmd *cobra.Command, printConfig bool) (*Configuration, error) {

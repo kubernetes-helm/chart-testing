@@ -94,7 +94,7 @@ type fakeHelm struct{}
 func (h fakeHelm) AddRepo(name, url string, extraArgs []string) error   { return nil }
 func (h fakeHelm) BuildDependencies(chart string) error                 { return nil }
 func (h fakeHelm) LintWithValues(chart string, valuesFile string) error { return nil }
-func (h fakeHelm) InstallWithValues(chart string, valuesFile string, namespace string, release string) error {
+func (h fakeHelm) InstallWithValues(chart string, valuesFile string, namespace string, release string, postRenderer string) error {
 	return nil
 }
 func (h fakeHelm) Upgrade(chart string, namespace string, release string) error {

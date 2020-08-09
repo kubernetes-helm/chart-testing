@@ -77,6 +77,14 @@ func addInstallFlags(flags *flag.FlagSet) {
 	flags.String("release-label", "app.kubernetes.io/instance", heredoc.Doc(`
 		The label to be used as a selector when inspecting resources created by charts.
 		This is only used if namespace is specified`))
+	flags.String("setup-script", "", heredoc.Doc(`
+		Path to a script that contains extra setup steps to be run before installing the chart`))
+	flags.String("post-renderer", "", heredoc.Doc(`
+		Path to post-renderer script.
+		  * Will be run relative to each chart being tested.
+		  * Will be ignored if "--post-render" is set in "--helm-extra-args".
+		  * Will be ignored if the script does not exist.
+		`))
 }
 
 func install(cmd *cobra.Command, args []string) error {

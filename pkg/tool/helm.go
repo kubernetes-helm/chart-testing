@@ -16,7 +16,9 @@ package tool
 
 import (
 	"fmt"
+	"path/filepath"
 
+	"github.com/helm/chart-testing/pkg/util"
 	"github.com/helm/chart-testing/v3/pkg/exec"
 )
 
@@ -49,12 +51,20 @@ func (h Helm) LintWithValues(chart string, valuesFile string) error {
 	return h.exec.RunProcess("helm", "lint", chart, values)
 }
 
-func (h Helm) InstallWithValues(chart string, valuesFile string, namespace string, release string) error {
+func (h Helm) InstallWithValues(chart string, valuesFile string, namespace string, release string, postRenderer string) error {
 	var values []string
 	if valuesFile != "" {
 		values = []string{"--values", valuesFile}
 	}
-
+	if !util.StringSliceContains(h.extraArgs, "--post-renderer") {
+		if postRenderer != "" {
+			hookPath := filepath.Join(chart, postRenderer)
+			if util.FileExists(hookPath) {
+				fmt.Printf("Using `--post-renderer=%s`", hookPath)
+				h.extraArgs = append(h.extraArgs, "--post-renderer", hookPath)
+			}
+		}
+	}
 	if err := h.exec.RunProcess("helm", "install", release, chart, "--namespace", namespace,
 		"--wait", values, h.extraArgs); err != nil {
 		return err

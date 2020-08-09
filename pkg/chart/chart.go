@@ -82,7 +82,7 @@ type Helm interface {
 	AddRepo(name string, url string, extraArgs []string) error
 	BuildDependencies(chart string) error
 	LintWithValues(chart string, valuesFile string) error
-	InstallWithValues(chart string, valuesFile string, namespace string, release string) error
+	InstallWithValues(chart string, valuesFile string, namespace string, release string, postRenderer string) error
 	Upgrade(chart string, namespace string, release string) error
 	Test(namespace string, release string) error
 	DeleteRelease(namespace string, release string)
@@ -359,6 +359,13 @@ func (t *Testing) processCharts(action func(chart *Chart) TestResult) ([]TestRes
 		}
 	}
 
+	if len(charts) > 0 {
+		err = runSetupScript(t.config.SetupScript)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed running setup script %s", t.config.SetupScript)
+		}
+	}
+
 	for _, chart := range charts {
 		if err := t.helm.BuildDependencies(chart.Path()); err != nil {
 			return nil, errors.Wrapf(err, "Error building dependencies for chart '%s'", chart)
@@ -547,7 +554,7 @@ func (t *Testing) doInstall(chart *Chart) error {
 					return err
 				}
 			}
-			if err := t.helm.InstallWithValues(chart.Path(), valuesFile, namespace, release); err != nil {
+			if err := t.helm.InstallWithValues(chart.Path(), valuesFile, namespace, release, t.config.PostRenderer); err != nil {
 				return err
 			}
 			return t.testRelease(namespace, release, releaseSelector)
@@ -588,7 +595,7 @@ func (t *Testing) doUpgrade(oldChart, newChart *Chart, oldChartMustPass bool) er
 				}
 			}
 			// Install previous version of chart. If installation fails, ignore this release.
-			if err := t.helm.InstallWithValues(oldChart.Path(), valuesFile, namespace, release); err != nil {
+			if err := t.helm.InstallWithValues(oldChart.Path(), valuesFile, namespace, release, t.config.PostRenderer); err != nil {
 				if oldChartMustPass {
 					return err
 				}
@@ -908,4 +915,17 @@ func printDetails(resource string, text string, delimiterChar string, printFunc 
 		fmt.Printf("<== %s %s\n", text, resource)
 		util.PrintDelimiterLine(delimiterChar)
 	}
+}
+
+func runSetupScript(setupScript string) error {
+	if setupScript != "" {
+		if !util.FileExists(setupScript) {
+			fail := "provided setup script (" + setupScript + ") does not exist"
+			return errors.New(fail)
+		}
+		fmt.Printf("Running setup script %s...\n", setupScript)
+		setup := exec.ProcessExecutor{}
+		return setup.RunProcess(setupScript)
+	}
+	return nil
 }
