@@ -42,6 +42,7 @@ func loadAndAssertConfigFromFile(t *testing.T, configFile string) {
 	require.Equal(t, true, cfg.ValidateMaintainers)
 	require.Equal(t, true, cfg.ValidateChartSchema)
 	require.Equal(t, true, cfg.ValidateYaml)
+	require.Equal(t, true, cfg.StrictLint)
 	require.Equal(t, true, cfg.CheckVersionIncrement)
 	require.Equal(t, false, cfg.ProcessAllCharts)
 	require.Equal(t, []string{"incubator=https://incubator"}, cfg.ChartRepos)

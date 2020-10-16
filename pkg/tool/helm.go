@@ -23,12 +23,14 @@ import (
 type Helm struct {
 	exec      exec.ProcessExecutor
 	extraArgs []string
+	lintArgs  []string
 }
 
-func NewHelm(exec exec.ProcessExecutor, extraArgs []string) Helm {
+func NewHelm(exec exec.ProcessExecutor, extraArgs []string, lintArgs []string) Helm {
 	return Helm{
 		exec:      exec,
 		extraArgs: extraArgs,
+		lintArgs:  lintArgs,
 	}
 }
 
@@ -46,7 +48,7 @@ func (h Helm) LintWithValues(chart string, valuesFile string) error {
 		values = []string{"--values", valuesFile}
 	}
 
-	return h.exec.RunProcess("helm", "lint", chart, values)
+	return h.exec.RunProcess("helm", "lint", h.lintArgs, chart, values)
 }
 
 func (h Helm) InstallWithValues(chart string, valuesFile string, namespace string, release string) error {

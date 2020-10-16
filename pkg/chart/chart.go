@@ -246,10 +246,14 @@ type TestResult struct {
 func NewTesting(config config.Configuration) (Testing, error) {
 	procExec := exec.NewProcessExecutor(config.Debug)
 	extraArgs := strings.Fields(config.HelmExtraArgs)
+	lintArgs := []string{}
+	if config.StrictLint {
+		lintArgs = append(lintArgs, "--strict")
+	}
 
 	testing := Testing{
 		config:           config,
-		helm:             tool.NewHelm(procExec, extraArgs),
+		helm:             tool.NewHelm(procExec, extraArgs, lintArgs),
 		git:              tool.NewGit(procExec),
 		kubectl:          tool.NewKubectl(procExec),
 		linter:           tool.NewLinter(procExec),

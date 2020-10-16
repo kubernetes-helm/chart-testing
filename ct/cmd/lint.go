@@ -69,6 +69,8 @@ func addLintFlags(flags *flag.FlagSet) {
 			Enable schema validation of 'Chart.yaml' using Yamale (default: true)`))
 	flags.Bool("validate-yaml", true, heredoc.Doc(`
 			Enable linting of 'Chart.yaml' and values files (default: true)`))
+	flags.Bool("strict-lint", false, heredoc.Doc(`
+			Enable strict chart linting (default: false)`))
 }
 
 func lint(cmd *cobra.Command, args []string) error {
