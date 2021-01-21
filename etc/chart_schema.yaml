@@ -1,6 +1,7 @@
 name: str()
 home: str()
 version: str()
+apiVersion: str()
 appVersion: any(str(), num())
 description: str()
 keywords: list(str(), required=False)

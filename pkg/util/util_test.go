@@ -33,7 +33,7 @@ func TestFlatten(t *testing.T) {
 	}
 
 	for index, testData := range testDataSlice {
-		t.Run(string(index), func(t *testing.T) {
+		t.Run(fmt.Sprint(index), func(t *testing.T) {
 			actual, err := Flatten(testData.input)
 			assert.Equal(t, testData.expected, actual)
 			if testData.expected != nil {
@@ -61,7 +61,7 @@ func TestCompareVersions(t *testing.T) {
 	}
 
 	for index, testData := range testDataSlice {
-		t.Run(string(index), func(t *testing.T) {
+		t.Run(fmt.Sprint(index), func(t *testing.T) {
 			actual, _ := CompareVersions(testData.oldVersion, testData.newVersion)
 			assert.Equal(t, testData.expected, actual)
 		})
@@ -83,7 +83,7 @@ func TestSanitizeName(t *testing.T) {
 	}
 
 	for index, testData := range testDataSlice {
-		t.Run(string(index), func(t *testing.T) {
+		t.Run(fmt.Sprint(index), func(t *testing.T) {
 			actual := SanitizeName(testData.input, testData.maxLength)
 			fmt.Printf("actual: %s,%d, input: %s,%d\n", actual, len(actual), testData.input, testData.maxLength)
 			assert.Equal(t, testData.expected, actual)
@@ -111,7 +111,7 @@ func TestBreakingChangeAllowed(t *testing.T) {
 	}
 
 	for index, testData := range testDataSlice {
-		t.Run(string(index), func(t *testing.T) {
+		t.Run(fmt.Sprint(index), func(t *testing.T) {
 			actual, _ := BreakingChangeAllowed(testData.left, testData.right)
 			assert.Equal(t, testData.breaking, actual, fmt.Sprintf("input: %s,%s\n", testData.left, testData.right))
 		})

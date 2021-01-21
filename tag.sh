@@ -98,7 +98,7 @@ main() {
     pushd "$SCRIPT_DIR" > /dev/null
 
     git fetch "$remote"
-    git tag -a -m "Release $tag" "$tag" "$remote/master" "${force[@]}"
+    git tag -a -m "Release $tag" "$tag" "$remote/dev-v2" "${force[@]}"
 
     if [[ -z "$skip_push" ]]; then
         git push "$remote" "refs/tags/$tag" "${force[@]}"
