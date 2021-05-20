@@ -78,7 +78,7 @@ func (h Helm) Test(namespace string, release string) error {
 
 func (h Helm) DeleteRelease(namespace string, release string) {
 	fmt.Printf("Deleting release '%s'...\n", release)
-	if err := h.exec.RunProcess("helm", "uninstall", release, "--namespace", namespace, h.extraArgs); err != nil {
+	if err := h.exec.RunProcess("helm", "uninstall", release, "--namespace", namespace); err != nil {
 		fmt.Println("Error deleting Helm release:", err)
 	}
 }
