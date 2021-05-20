@@ -562,17 +562,25 @@ func (t *Testing) doInstall(chart *Chart) error {
 		// and be executed in reverse order after the loop.
 		fun := func() error {
 			namespace, release, releaseSelector, cleanup := t.generateInstallConfig(chart)
-			defer cleanup()
+			installFailed := false
+			defer cleanup(&installFailed)
 
 			if t.config.Namespace == "" {
 				if err := t.kubectl.CreateNamespace(namespace); err != nil {
+					installFailed = true
 					return err
 				}
 			}
 			if err := t.helm.InstallWithValues(chart.Path(), valuesFile, namespace, release); err != nil {
+				installFailed = true
 				return err
 			}
-			return t.testRelease(namespace, release, releaseSelector)
+			if err := t.testRelease(namespace, release, releaseSelector); err != nil {
+				installFailed = true
+				return err
+			}
+
+			return nil
 		}
 
 		if err := fun(); err != nil {
@@ -602,15 +610,18 @@ func (t *Testing) doUpgrade(oldChart, newChart *Chart, oldChartMustPass bool) er
 		// and be executed in reverse order after the loop.
 		fun := func() error {
 			namespace, release, releaseSelector, cleanup := t.generateInstallConfig(oldChart)
-			defer cleanup()
+			upgradeFailed := false
+			defer cleanup(&upgradeFailed)
 
 			if t.config.Namespace == "" {
 				if err := t.kubectl.CreateNamespace(namespace); err != nil {
+					upgradeFailed = true
 					return err
 				}
 			}
 			// Install previous version of chart. If installation fails, ignore this release.
 			if err := t.helm.InstallWithValues(oldChart.Path(), valuesFile, namespace, release); err != nil {
+				upgradeFailed = true
 				if oldChartMustPass {
 					return err
 				}
@@ -618,6 +629,7 @@ func (t *Testing) doUpgrade(oldChart, newChart *Chart, oldChartMustPass bool) er
 				return nil
 			}
 			if err := t.testRelease(namespace, release, releaseSelector); err != nil {
+				upgradeFailed = true
 				if oldChartMustPass {
 					return err
 				}
@@ -626,10 +638,16 @@ func (t *Testing) doUpgrade(oldChart, newChart *Chart, oldChartMustPass bool) er
 			}
 
 			if err := t.helm.Upgrade(oldChart.Path(), namespace, release); err != nil {
+				upgradeFailed = true
 				return err
 			}
 
-			return t.testRelease(namespace, release, releaseSelector)
+			if err := t.testRelease(namespace, release, releaseSelector); err != nil {
+				upgradeFailed = true
+				return err
+			}
+
+			return nil
 		}
 
 		if err := fun(); err != nil {
@@ -650,19 +668,23 @@ func (t *Testing) testRelease(namespace, release, releaseSelector string) error 
 	return nil
 }
 
-func (t *Testing) generateInstallConfig(chart *Chart) (namespace, release, releaseSelector string, cleanup func()) {
+func (t *Testing) generateInstallConfig(chart *Chart) (namespace, release, releaseSelector string, cleanup func(*bool)) {
 	if t.config.Namespace != "" {
 		namespace = t.config.Namespace
 		release, _ = chart.CreateInstallParams(t.config.BuildId)
 		releaseSelector = fmt.Sprintf("%s=%s", t.config.ReleaseLabel, release)
-		cleanup = func() {
-			t.PrintEventsPodDetailsAndLogs(namespace, releaseSelector)
+		cleanup = func(failed *bool) {
+			if !t.config.LogFailedOnly || (*failed && t.config.LogFailedOnly) {
+				t.PrintEventsPodDetailsAndLogs(namespace, releaseSelector)
+			}
 			t.helm.DeleteRelease(namespace, release)
 		}
 	} else {
 		release, namespace = chart.CreateInstallParams(t.config.BuildId)
-		cleanup = func() {
-			t.PrintEventsPodDetailsAndLogs(namespace, releaseSelector)
+		cleanup = func(failed *bool) {
+			if !t.config.LogFailedOnly || (*failed && t.config.LogFailedOnly) {
+				t.PrintEventsPodDetailsAndLogs(namespace, releaseSelector)
+			}
 			t.helm.DeleteRelease(namespace, release)
 			t.kubectl.DeleteNamespace(namespace)
 		}

@@ -65,6 +65,7 @@ type Configuration struct {
 	Namespace             string   `mapstructure:"namespace"`
 	ReleaseLabel          string   `mapstructure:"release-label"`
 	ExcludeDeprecated     bool     `mapstructure:"exclude-deprecated"`
+	LogFailedOnly         bool     `mapstructure:"log-failed-only"`
 }
 
 func LoadConfiguration(cfgFile string, cmd *cobra.Command, printConfig bool) (*Configuration, error) {

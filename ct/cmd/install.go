@@ -77,6 +77,9 @@ func addInstallFlags(flags *flag.FlagSet) {
 	flags.String("release-label", "app.kubernetes.io/instance", heredoc.Doc(`
 		The label to be used as a selector when inspecting resources created by charts.
 		This is only used if namespace is specified`))
+	flags.Bool("log-failed-only", false, heredoc.Doc(`
+		Display logs, descriptions, and events for only failed installations, upgrades,
+		and tests`))
 }
 
 func install(cmd *cobra.Command, args []string) error {
